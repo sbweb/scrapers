@@ -33,11 +33,31 @@ $url = "http://www.nadeemtron.com/policy";
 			}
 			else {			
 			$item['url']    = $article->find('h4.excerpt-title a', 0)->href;
-			if(preg_match('#\bhttps?://[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/))#', $article->find('div.image', 0)->style, $matches)) {
-			$image_url = $matches[0];
+			if(count($article->find('div.image', 0)) > 0) {
+			$style = $article->find('div.image', 0)->style;
+			$change = 'N';
+			if(preg_match("/\((\d+)\)/",$style, $output_array)) {
+				
+				//print_r($output_array[0]);
+				$change = $output_array[0];
+				$style = preg_replace("/\((\d+)\)/", "###", $style);
+			}
+	
+			if(preg_match('#\bhttps?://[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/))#',$style, $matches)) {
+				if($change != 'N') {
+
+				$image_url = str_replace('###',$change,$matches[0]);
+				}
+				else {
+				$image_url = $matches[0];
+				}
 			}
 			else {
-				 $image_url = '';
+			$image_url = '';
+			}
+			}
+			else {
+			$image_url = '';	
 			}
 			$item['img'] = $image_url;
 			include('content.php');
@@ -51,10 +71,13 @@ $url = "http://www.nadeemtron.com/policy";
 			if($image_url != '') {
 			$upload_dir = wp_upload_dir();
 			$image_data = file_get_contents($image_url);
+			
 			$filename = basename($image_url);
+			
 			$ext_info = pathinfo($filename, PATHINFO_EXTENSION);
 			$ext_array = explode('?',$ext_info);
 			$ext = $ext_array[0];
+			
 			$filename = time().rand().'.'.$ext;
 			if(wp_mkdir_p($upload_dir['path']))
 				$file = $upload_dir['path'] . '/' . $filename;
@@ -116,13 +139,13 @@ $start_page = $items[1];
 ?>
 <link rel="stylesheet" type="text/css" href="<?php echo plugins_url( 'assets/css/admin.css', __FILE__ ) ?>">
 
-<div>
+<div id="content_show">
 <div class="authenticate">
 	<div class="wrap1" style="min-height: 600px;">
 		<div id="icon-plugins" class="icon32"></div>
 		<h2>We have enhanced </h2>
-        <?php if($count > 0) { echo $count." Post has been imported successfully"; } ?>
-        <?php if($error) { echo $error; } ?>
+        <?php if($count > 0) { echo "<h3>".$count." Post has been imported successfully</h3>"; } ?>
+        <?php if($error) { echo "<h3>".$error."</h3>"; } ?>
 		<div class="register-left">
 	<div class="alert" style="margin: 0px auto; padding: 20px 15px; text-align: center;">
 			<h3>We are fetching posts from <a href="http://www.nadeemtron.com/policy" target="_blank">http://www.nadeemtron.com/policy</a></h3>
@@ -140,7 +163,10 @@ $start_page = $items[1];
 		
 	</div>
 </div>
-
-
-
 </div>
+<script type="text/javascript">
+	jQuery(document).ready(function(e) {
+		
+		
+	})
+</script>
